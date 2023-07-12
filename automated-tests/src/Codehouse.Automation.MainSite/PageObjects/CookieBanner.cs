@@ -1,5 +1,5 @@
-﻿using Codehouse.Automation.MainSite.Services;
-using Codehouse.Automation.MainSite.Support;
+﻿using Codehouse.Automation.Common;
+using Codehouse.Automation.Common.Extensions;
 using FluentAssertions;
 using OpenQA.Selenium;
 
@@ -7,64 +7,93 @@ namespace Codehouse.Automation.MainSite.PageObjects;
 
 internal class CookieBanner
 {
-    private readonly WebDriverProxy _webDriver;
+    private const int TotalToggles = 4;
+    private static readonly By CookieContainerLocator = By.CssSelector("div.cky-consent-container");
 
-    public CookieBanner(WebDriverProxy webDriver)
+    private static readonly By CookieAcceptButtonLocator =
+        By.CssSelector("div.cky-consent-container button.cky-btn-accept");
+
+    private static readonly By CookieCloseButtonLocator =
+        By.CssSelector("div.cky-consent-container button.cky-banner-btn-close");
+
+    private static readonly By CustomizeCookiesLocator =
+        By.CssSelector("button.cky-btn.cky-btn-customize");
+
+    private static readonly By SaveMyPreferencesCta = By.CssSelector("button.cky-btn.cky-btn-preferences");
+    private static readonly By CookiePolicyLink = By.XPath("//a[normalize-space()='Cookie policy']");
+    private static readonly By CookieSettingsCta = By.XPath("//a[@class='cky-banner-element']");
+    private static readonly By CookieCheckboxLocator = By.XPath("//input[@type='checkbox']");
+    private static readonly By ToggledOnCookiesLocator = By.CssSelector("div.cky-switch [aria-label*='Disable']");
+    private static readonly By ToggledOffCookiesLocator = By.CssSelector("div.cky-switch [aria-label*='Enable']");
+
+    private readonly IWebDriver _webDriver;
+
+    public CookieBanner(IWebDriver webDriver)
     {
         _webDriver = webDriver;
     }
 
-    private static readonly By CookieContainerLocator = By.CssSelector("div.cky-consent-container");
-    private static readonly By CookieAcceptButtonLocator = By.CssSelector("div.cky-consent-container button.cky-btn-accept");
-    private static readonly By CookieCloseButtonLocator = By.CssSelector("div.cky-consent-container button.cky-banner-btn-close");
-
-
-    public void ValidateIsDisplayed()
-    {
-        _webDriver.WaitForAndFindElement(CookieContainerLocator, new WebElementQuery
-        {
-            IsDisplayed = true
-        });
-    }
-
-    public void ValidateIsNotDisplayed()
-    {
-        _webDriver.WaitForAll(CookieContainerLocator, new WebElementQuery
-        {
-            IsDisplayed = false
-        });
-    }
-
     public void Accept()
     {
-        _webDriver.WaitForAndFindElement(CookieAcceptButtonLocator, new WebElementQuery
-        {
-            IsDisplayed = true,
-            IsEnabled = true
-        }).Click();
+        _webDriver.Click(CookieAcceptButtonLocator);
     }
 
-    public void ValidateCorrectCookies()
+    public void ClickCookiePolicyLink()
     {
-        _webDriver.ValidateCookieNamed("_gid");
+        _webDriver.Click(CookiePolicyLink);
     }
 
-    private void ValidateCorrectCookies(WaitSettings settings)
+    public void ClickCookieSettings()
     {
-        _webDriver.ValidateCookieNamed("_gid", settings);
-    }
-
-    public void ValidateNotCorrectCookies()
-    {
-        new Action(() => ValidateCorrectCookies(new WaitSettings { TimeoutOverride = TimeSpan.FromSeconds(5) })).Should().Throw<WebDriverTimeoutException>();
+        
+        _webDriver.Click(CookieSettingsCta);
     }
 
     public void Close()
     {
-        _webDriver.WaitForAndFindElement(CookieCloseButtonLocator, new WebElementQuery
+        _webDriver.Click(CookieCloseButtonLocator);
+    }
+
+    public void Customize()
+    {
+        _webDriver.Click(CustomizeCookiesLocator);
+    }
+
+    public void SavePreferences()
+    {
+        _webDriver.Click(SaveMyPreferencesCta);
+    }
+
+    public void ToggleOnOffCookies()
+    {
+        _webDriver.BrowserSleep(For.TwoSeconds);
+        var checklist = _webDriver.WaitForAndFindElements(CookieCheckboxLocator);
+        foreach (var element in checklist)
         {
-            IsDisplayed = true,
-            IsEnabled = true
-        }).Click();
+            _webDriver.ScrollDownPopUpModal(checklist[2]);
+            element.Scroll().Click();
+        }
+    }
+
+    public void VerifyCookieBannerAppears()
+    {
+        _webDriver.WaitForElementToBePresent(CookieContainerLocator, 2);
+    }
+
+    public void VerifyCookieBannerDisappears()
+    {
+        _webDriver.WaitForElementToBeInvisible(CookieContainerLocator);
+    }
+
+    public void VerifyToggleOffCookies()
+    {
+        var numberOfTicks = _webDriver.WaitForAndFindElements(ToggledOffCookiesLocator).Count;
+        numberOfTicks.Should().Be(TotalToggles);
+    }
+
+    public void VerifyToggleOnCookies()
+    {
+        var numberOfTicks = _webDriver.WaitForAndFindElements(ToggledOnCookiesLocator).Count;
+        numberOfTicks.Should().Be(TotalToggles);
     }
 }

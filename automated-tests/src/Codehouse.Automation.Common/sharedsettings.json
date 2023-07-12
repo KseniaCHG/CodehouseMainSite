@@ -1,0 +1,14 @@
+{
+  "browserParams": {
+    "targetBrowser": "Chrome",
+    "headless": false
+  },
+  "screenshot": {
+    "directory": "screenshots",
+    "archiveDirectory": "screenshots-archive"
+  },
+  "defaults": {
+    "timeoutInSeconds": 20,
+    "pollingIntervalInSeconds": 0.125
+  } 
+}

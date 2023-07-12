@@ -5,18 +5,19 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<LangVersion>latest</LangVersion>
+		<Configurations>Debug;Release;Prod</Configurations>
 	</PropertyGroup>
 
 	<PropertyGroup>
-		<CodeAnalysisRuleSet>..\..\lib\rulesets\Codehouse.ruleset</CodeAnalysisRuleSet>
+		<CodeAnalysisRuleSet></CodeAnalysisRuleSet>
 	</PropertyGroup>
 
 	<ItemGroup>
 		<PackageReference Include="FluentAssertions" Version="6.11.0" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="7.0.4" />
 		<PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="7.0.0" />
-		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.0" />
-		<PackageReference Include="Selenium.WebDriver" Version="4.9.1" />
+		<PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.6.3" />
+		<PackageReference Include="Selenium.WebDriver" Version="4.10.0" />
 		<PackageReference Include="SpecFlow.Plus.LivingDocPlugin" Version="3.9.57" />
 		<PackageReference Include="SpecFlow.xUnit" Version="3.9.74" />
 		<PackageReference Include="StyleCop.Analyzers" Version="1.1.118">
@@ -31,15 +32,32 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<None Update="appsettings.Debug.json">
+		  <IsTransformFile>true</IsTransformFile>
+		  <DependentUpon>appsettings.json</DependentUpon>
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
 		<None Update="appsettings.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
+			<TransformOnBuild>true</TransformOnBuild>
+		</None>
+		<None Update="appsettings.Prod.json">
+		  <IsTransformFile>true</IsTransformFile>
+		  <DependentUpon>appsettings.json</DependentUpon>
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+		</None>
+		<None Update="appsettings.Release.json">
+		  <IsTransformFile>true</IsTransformFile>
+		  <DependentUpon>appsettings.json</DependentUpon>
+		  <CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
 		<None Update="specflow.json">
 			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
 		</None>
-		<None Update="xunit.runner.json">
-			<CopyToOutputDirectory>Always</CopyToOutputDirectory>
-		</None>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Codehouse.Automation.Common\Codehouse.Automation.Common.csproj" />
 	</ItemGroup>
 
 </Project>
